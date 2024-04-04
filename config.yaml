@@ -1,0 +1,153 @@
+openapi: 3.0.0
+info:
+  title: FEC Donor Data API
+  description: Fetch FEC donor data based on contributor's name and city.
+  version: 1.0.0
+servers:
+  - url: https://api.open.fec.gov/v1
+    description: Federal Election Commission API
+paths:
+  /schedules/schedule_a/:
+    get:
+      operationId: fetchFecData
+      summary: Fetch FEC donor data.
+      description: Fetches donor data based on contributor's full name and city.
+      parameters:
+        - name: contributor_name
+          in: query
+          description: Full name of the contributor (first and last name).
+          required: true
+          schema:
+            type: string
+        - name: contributor_city
+          in: query
+          description: City of the contributor.
+          required: false
+          schema:
+            type: string
+        - name: per_page
+          in: query
+          description: Number of results to return per page.
+          required: false
+          schema:
+            type: integer
+            default: 100
+        - name: sort
+          in: query
+          description: Sorting parameter, defaults to contribution receipt date descending.
+          required: false
+          schema:
+            type: string
+            default: -contribution_receipt_date
+        - name: sort_hide_null
+          in: query
+          description: Whether to hide null values in sort, defaults to false.
+          required: false
+          schema:
+            type: string
+            default: "false"
+        - name: sort_null_only
+          in: query
+          description: Sort null values only, defaults to false.
+          required: false
+          schema:
+            type: string
+            default: "false"
+        - name: api_key
+          in: query
+          description: API key for accessing the FEC API.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A JSON object containing donor data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    type: object
+                    properties:
+                      pages:
+                        type: integer
+                      per_page:
+                        type: integer
+                      count:
+                        type: integer
+                      last_indexes:
+                        type: object
+                        properties:
+                          last_index:
+                            type: string
+                          last_contribution_receipt_date:
+                            type: string
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        contributor_first_name:
+                          type: string
+                        contributor_middle_name:
+                          type: string
+                        contributor_last_name:
+                          type: string
+                        contributor_id:
+                          type: string
+                        contributor_employer:
+                          type: string
+                        contributor_occupation:
+                          type: string
+                        contribution_receipt_amount:
+                          type: number
+                        contribution_receipt_date:
+                          type: string
+                        contributor_street_1:
+                          type: string
+                        contributor_city:
+                          type: string
+                        contributor_state:
+                          type: string
+                        contributor_zip:
+                          type: string
+                        committee:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                            organization_type:
+                              type: string
+                            organization_type_full:
+                              type: string
+                            party:
+                              type: string
+                            party_full:
+                              type: string
+                            affiliated_committee_name:
+                              type: string
+                            city:
+                              type: string
+                            committee_id:
+                              type: string
+                            committee_type_full:
+                              type: string
+                            cycle:
+                              type: string
+                            is_active:
+                              type: boolean
+                        contributor_aggregate_ytd:
+                          type: number
+                        entity_type:
+                          type: string
+                        line_number_label:
+                          type: string
+                        memo_text:
+                          type: string
+        "400":
+          description: Bad request, possibly due to missing or invalid parameters.
+        "401":
+          description: Unauthorized, API key missing or invalid.
+        "500":
+          description: Internal server error.
